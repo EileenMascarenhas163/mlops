@@ -1,0 +1,14 @@
+artifact_uri: file:D:/mlops/mlruns/349901492135260991/d38763daec8d46329525fa645f017c3e/artifacts
+end_time: 1765886853225
+entry_point_name: ''
+experiment_id: '349901492135260991'
+lifecycle_stage: active
+run_id: d38763daec8d46329525fa645f017c3e
+run_name: masked-chimp-52
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765886853075
+status: 4
+tags: []
+user_id: Account

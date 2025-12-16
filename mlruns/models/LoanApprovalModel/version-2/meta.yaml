@@ -1,0 +1,15 @@
+creation_timestamp: 1765890262148
+current_stage: None
+deployment_job_state: null
+description: ''
+last_updated_timestamp: 1765890262148
+model_id: ''
+name: LoanApprovalModel
+run_id: ba15b7de3fae4b838a395da172204b6c
+run_link: ''
+source: models:/LoanApprovalModel/1
+status: READY
+status_message: null
+storage_location: file:D:/mlops/mlruns/349901492135260991/models/m-6fc00ad70cc04cf68af1a6c8ddb78042/artifacts
+user_id: null
+version: 2

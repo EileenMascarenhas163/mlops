@@ -1,0 +1,14 @@
+artifact_uri: file:D:/mlops/mlruns/349901492135260991/ba15b7de3fae4b838a395da172204b6c/artifacts
+end_time: 1765886922857
+entry_point_name: ''
+experiment_id: '349901492135260991'
+lifecycle_stage: active
+run_id: ba15b7de3fae4b838a395da172204b6c
+run_name: whimsical-lark-888
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765886915469
+status: 3
+tags: []
+user_id: Account

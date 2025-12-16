@@ -1,12 +1,12 @@
-from fastapi import FastAPI
 import mlflow.sklearn
 import pandas as pd
+from fastapi import FastAPI
 from prometheus_client import Counter, Histogram, generate_latest
 
 app = FastAPI()
 
 model = mlflow.sklearn.load_model(
-    "models:/LoanApprovalModel/Production"
+    "models:/LoanApprovalModel@prod"
 )
 
 REQUESTS = Counter("requests_total", "Total requests")
@@ -18,10 +18,10 @@ def predict(features: dict):
     with LATENCY.time():
         df = pd.DataFrame([features])
         prob = model.predict_proba(df)[0][1]
-        prediction = prob >= 0.5
+
         return {
-            "loan_approved": bool(prediction),
-            "confidence": round(prob, 3)
+            "loan_approved": bool(prob >= 0.5),
+            "confidence": float(round(prob, 3))
         }
 
 @app.get("/metrics")
