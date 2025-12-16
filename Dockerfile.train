@@ -11,4 +11,4 @@ COPY params.yaml .
 
 ENV MLFLOW_TRACKING_URI=http://mlflow:5000
 
-CMD ["python", "src/train.py"]
+CMD ["python", "src/data/train.py"]
