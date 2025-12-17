@@ -1,63 +1,86 @@
 from diagrams import Diagram, Cluster, Edge
-from diagrams.aws.compute import EC2
+# AWS Components
+from diagrams.aws.compute import EC2, ECR, ECS
 from diagrams.aws.storage import S3
-from diagrams.onprem.client import User
-from diagrams.onprem.vcs import Github
-from diagrams.onprem.ci import GithubActions
+from diagrams.aws.network import ELB
+from diagrams.aws.management import Cloudwatch
+# On-Premise/Tooling Components
 from diagrams.onprem.container import Docker
-from diagrams.onprem.monitoring import Prometheus, Grafana
 from diagrams.onprem.database import Postgresql
-
-from diagrams.programming.framework import FastAPI
+ # Used for ELK Stack
+             # Used for MLOps Pipeline/CI/CD at bottom
+from diagrams.onprem.vcs import Git                 # Used for DVC
+# Programming Components
+from diagrams.programming.framework import Angular, Flask
 from diagrams.programming.language import Python
+from diagrams.ml.framework import Mlflow
+from diagrams.ml.model import Model                 # Used for the brain icon
 
-with Diagram(
-    "Production MLOps Architecture: Loan Approval System (CI/CD/CT/CM)",
-    show=True,
-    direction="TB",
-    filename="mlops_professional_architecture"
-):
-    # Users
-    end_user = User("Client Portal User")
-    ml_engineer = User("MLOps Engineer")
+# Graph attributes for a cleaner layout
+graph_attr = {
+    "splines": "spline",
+    "nodesep": "0.6",
+    "ranksep": "1.2",
+    "fontname": "Sans-Serif",
+    "bgcolor": "white"
+}
 
-    # CI/CD
-    with Cluster("Development & Continuous Integration"):
-        github = Github("Source Code Repository")
-        cicd = GithubActions("CI/CD Automation Pipeline")
-        ml_engineer >> github >> cicd
+with Diagram("Production MLOps Architecture (Strict Match)", show=True, direction="LR", graph_attr=graph_attr):
 
-    cicd_target = EC2("AWS ECS/EKS Compute Cluster")
-    cicd >> Edge(label="Container Deployment") >> cicd_target
+    # --- Front End Cluster ---
+    with Cluster("Front end", graph_attr={"pencolor": "#d9534f", "style": "dashed", "fontcolor": "#d9534f"}):
+        angular = Angular("Angular")
+        docker_fe = Docker("docker")
 
-    with Cluster("Production MLOps Services"):
-        # Training Pipeline (Continuous Training - CT)
-        with Cluster("Continuous Training (CT)"):
-            dataset = S3("Feature Store / Data Lake (S3)")
-            etl = Python("Data Prep & Feature Engineering")
-            trainer = Docker("Sklearn/XGBoost Model Trainer")
-            dataset >> etl >> trainer
+    # --- Back End Cluster ---
+    with Cluster("Back end"):
+        # Data & Experimentation Group
+        data = Database("Data")
+        jupyter = Python("jupyter")
+        dvc = Git("DVC")
+        s3 = S3("Amazon S3")
+        mlflow = Mlflow("MLflow")
+        ec2_data = EC2("Amazon EC2")
 
-        # Model Management
-        mlflow = Postgresql("MLflow Tracking & Registry\n(Model Governance)")
-        trainer >> Edge(label="Log Experiment & Model Artifact") >> mlflow
+        # Model Development Group
+        model = Model("model")
+        pytest_tool = Python("pytest")
+        flask_api = Flask("Flask\nRestful API")
+        docker_be = Docker("docker")
 
-        # Serving Layer (Continuous Deployment - CD)
-        with Cluster("Low-Latency Model Serving"):
-            api = FastAPI("Inference API Gateway (/predict)")
-           
-            ui >> Edge(label="HTTP Request") >> api
-            api >> Edge(label="Load Model via @prod Alias") >> mlflow
+        # Registry & Deployment Group
+        ecr = ECR("Amazon ECR")
+        ecs = ECS("AWS ECS")
 
-        # Monitoring (Continuous Monitoring - CM)
-        with Cluster("Model Observability & Monitoring"):
-            prometheus = Prometheus("Runtime Metrics Scraper")
-            grafana = Grafana("Performance & Drift Dashboards")
-            api >> Edge(label="Expose & Scrape Metrics") >> prometheus
-            prometheus >> grafana
+        webapp = Html5("Web app")
 
-        # Link core components to the compute cluster
-        cicd_target >> [etl, trainer, mlflow, api, ui, prometheus, grafana]
+       
+      
+        dash = Dashboard("Dashboard")
 
-    # External Access
-    end_user >> ui
+        # MLOps Pipeline (CI/CD) at the bottom
+        cicd = CI_CD("MLOps Pipeline\nCI/CD")
+
+        # --- Connections ---
+        # Data Flow
+        data >> jupyter >> dvc >> s3
+        jupyter >> [mlflow, model]
+        mlflow >> ec2_data
+        
+        # Model Training & API Flow
+        model >> mlflow
+        model >> pytest_tool >> flask_api >> docker_be >> ecr
+
+        # Deployment Flow (Ports are explicit in the diagram)
+        ecr >> Edge(label=":4200") >> ecs
+        ecr >> Edge(label=":5000") >> ecs
+        ecs >> lb >> webapp
+
+        # Monitoring Flow
+        ecs >> cw >> dash
+        ecs >> elk >> dash
+
+        # --- Cross-Cluster and Pipeline Connections ---
+        angular >> docker_fe >> ecr
+        # CI/CD orchestrates all major components (represented by the upward arrows)
+        cicd >> [data, jupyter, model, flask_api, cw, elk, dash, webapp, angular]

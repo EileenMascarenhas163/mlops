@@ -11,3 +11,7 @@ read.md
 .env.development.local
 .env.test.local
 .env.production.local
+mlops_professional_architecture.png
+mlruns/
+mlflow.db
+
